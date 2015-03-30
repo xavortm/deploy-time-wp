@@ -4,8 +4,8 @@
  * Description: Display when was the last update on the server files. It checks for wp-content folder only. Refresh rate is 20 minutes, because otherways it takes too much time to check all files.
  * Version: 1.0.0
  * Stable tag: 1.0.0
- * Author: DevriX
- * Author URI: http://www.devrix.com
+ * Author: Alex Dimitrov
+ * Author URI: http://www.xavortm.com
  * License: GPL2
  */
 
