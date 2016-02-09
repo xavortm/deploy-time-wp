@@ -10,12 +10,14 @@
 
 add_action( 'wp_footer', 'dx_write_deploy_date' );
 
-dx_start();
-function dx_start() {
-	if( isset( $_COOKIE['dx_deploy_timer_cooke'] ) ) {
+dx_deploy_time_init();
+
+function dx_deploy_time_init() {
+	if( isset( $_COOKIE['dx_deploy_timer_co§oke'] ) ) {
 		dx_has_cookie();
 	} else {
-		$date = dx_no_cookie();
+		$message = get_date_mod();
+		$date = dx_no_cookie( $message );
 	}
 }
 
@@ -30,11 +32,8 @@ function dx_has_cookie() {
  * If no cookie is created then make new one. This should be run only the first
  * time you visit the site after the cookies are expired.
  */
-function dx_no_cookie() {
-	$date = get_date_mod();
-	ob_start();
-	setcookie('dx_deploy_timer_cooke', $date, time() + ( 20 * 60 ), "/"); // Check every hour
-	ob_end_flush();
+function dx_no_cookie( $mesage ) {
+	setcookie('dx_deploy_timer_cooke', $mesage, time() + ( 20 * 60 ), "/"); // Check every hour
 }
 
 /**
@@ -46,7 +45,7 @@ function dx_write_deploy_date() {
 	$style = "position:fixed; bottom:0; right:0; display: block; padding: 0px 2px; font-family: 'Courier New'; font-size: 10px; margin: 0; background: black; color: white;line-height:1em";
 
     // Print the end result
-    if(isset($_COOKIE['dx_deploy_timer_cooke'])) {
+    if( isset( $_COOKIE['dx_deploy_timer_cooke'] ) ) {
 		echo '<p class="deploy-date" style="'.$style.'">Deployed: '.$_COOKIE['dx_deploy_timer_cooke'].'</p>';
 	} else {
 		$cur_date = get_date_mod();
@@ -58,16 +57,37 @@ function dx_write_deploy_date() {
 // Read the last modified file.
 function get_date_mod() {
     $output = "";
+    $cursor = -1;
+    $char = '';
+    $line = '';
 
     // "edited_files.txt"
-    $file_name = plugins_url( "edited_files.txt", __FILE__ );
+    $file_name = plugin_dir_url( __FILE__ ) . "edited_files.txt";
 
     // Return if the file does not exist.
     if ( ! file_exists( $file_name ) ) {
-        return "ERROR: File $file_name does not exist...";
+        return "ERROR: Unable to open $file_name";
     }
 
-    $file = fopen('edited_files.txt', 'r');
+    $file = fopen( $file_name, 'r' ) or die( "Unable to open file" );
 
+    fseek( $file, $cursor, SEEK_END );
+    $char = fgetc( $file );
+
+    while ( $char === "\n" || $char === "\r" ) {
+		// fseek( $file, $cursor--, SEEK_END );
+		$char = fgetc( $file );
+	}
+
+	while ($char !== false && $char !== "\n" && $char !== "\r") {
+	    $line = $char . $line;
+	    // fseek( $file, $cursor--, SEEK_END );
+	    $char = fgetc( $file );
+	}
+
+	$output = $line;
+
+    // End work with the log file.
+    fclose( $file );
 	return $output;
 }
