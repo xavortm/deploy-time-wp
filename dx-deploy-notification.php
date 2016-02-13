@@ -52,10 +52,15 @@ class DX_Deploy_Notifications {
 	public function check_timings() {
 		$comparison = get_option( "dx_deploy_cookie_time_compare" );
 		$cookie_content = get_option( "dx_deploy_cookie_time" );
+
+		if ( ! $comparison || ! $cookie_content ) {
+			return;
+		}
+
 		$cookie_time = $cookie_content["current_time"];
 
 		if ( $comparison != $cookie_time ) {
-			setcookie("dx_deploy_cookie", 1);
+			setcookie( "dx_deploy_cookie", 1 );
 			update_option( "dx_deploy_cookie_time_compare", $cookie_time );
 		}
 	}
@@ -86,6 +91,14 @@ class DX_Deploy_Notifications {
 		);
 	}
 
+	public function clear() {
+		update_option( "dx_deploy_cookie_time_compare", 0 );
+		update_option( "dx_deploy_cookie_time", 0 );
+		setcookie( "dx_deploy_cookie", 0 );
+		echo "asd";
+		$this->display_notification = false;
+	}
+
 	/**
 	 * Deisplay the deploy me notification to the frontend.
 	 *
@@ -93,14 +106,19 @@ class DX_Deploy_Notifications {
 	 * @since  v1.0.0
 	 */
 	public function display_message() {
+
+		// Stored data from deploy command in wp_cli
+		$message_data 		= get_option( 'dx_deploy_cookie_time' );
 		$display_class = '';
 
 		if ( $this->display_notification ) {
 			$display_class = 'is-visible';
 		}
 
-		// Stored data from deploy command in wp_cli
-		$message_data 		= get_option( 'dx_deploy_cookie_time' );
+		if ( empty( $message_data ) ) {
+			return;
+		}
+
 		$message_content 	= $message_data["message"];
 		$message_type 		= $message_data["type"];
 		$message_time 		= date( 'd M Y - [G:i:s] P e', $message_data["current_time"] );
@@ -136,11 +154,11 @@ if( defined( 'WP_CLI' ) && WP_CLI ) {
 		 *
 		 * ## EXAMPLES
 		 *
-		 * wp deployme deployed "New mobile menu functionality"
+		 * wp msg content "New mobile menu functionality"
 		 *
 		 * @synopsis <message>
 		 */
-		function deployed( $args, $assoc_args ) {
+		function content( $args, $assoc_args ) {
 
 			// Grab the message string
 			list( $message ) = $args;
@@ -155,10 +173,27 @@ if( defined( 'WP_CLI' ) && WP_CLI ) {
 			// Print the success message.
 			WP_CLI::success( "Visitors will be notified for a new deployment. <$message>" );
 		}
+
+		/**
+		 * Clear the notifications from the front-end
+		 *
+		 * ## EXAMPLES
+		 *
+		 * wp msg clear
+		 */
+		function clear( $args, $assoc_args ) {
+
+			// Send the data to the notifications class. It will deal with presenting
+			// it to the user.
+			$DX_Deploy_Notifications = new DX_Deploy_Notifications();
+			$DX_Deploy_Notifications->clear();
+
+			WP_CLI::success( "Notifications have been removed." );
+		}
 	}
 
 	// Register the new command to WP_CLI
-	WP_CLI::add_command( 'deployme', 'Deploy_Me_CLI' );
+	WP_CLI::add_command( 'msg', 'Deploy_Me_CLI' );
 
 }
 
