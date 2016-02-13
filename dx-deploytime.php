@@ -19,22 +19,42 @@ class DX_Deploy_Notifications {
 	 * @since  v1.0.0
 	 */
 	public function __construct() {
+		$current_time = time();
 
 		// Load the base scripts needed for notifying the users.
 		add_action( 'wp_footer', array( $this, 'register_scripts' ) );
 
 		// Show the notification window in the footer.
 		add_action( 'wp_footer', array( $this, "display_message" ) );
+
+		$this->check_timings();
+
+		// Store the display marker.
+		add_option( "dx_deploy_cookie_time" );
+		add_option( "dx_deploy_cookie_time_compare", $current_time );
+
 	}
 
-	public function deployed( $message = '', $type = 'info' ) {
+	public function deployed( $message = '', $type = 'info', $current_time ) {
 
 		// Use the new message
 		$this->message = sanitize_text_field( $message );
 		$this->type = sanitize_text_field( $type );
 
 		//  Add the action of creating new cookie
-		$this->set_cookie();
+		$this->set_option( $message, $type, $current_time );
+
+	}
+
+	public function check_timings() {
+		$comparison = get_option( "dx_deploy_cookie_time_compare" );
+		$cookie_content = get_option( "dx_deploy_cookie_time" );
+		$cookie_time = $cookie_content["current_time"];
+
+		if ( $comparison != $cookie_time ) {
+			setcookie("dx_deploy_cookie", 1);
+			update_option( "dx_deploy_cookie_time_compare", $cookie_time );
+		}
 	}
 
 	/**
@@ -49,8 +69,12 @@ class DX_Deploy_Notifications {
 		wp_enqueue_style 	( 'deploy-time-styling', plugins_url( 'css/notifications.css', __FILE__ ) );
 	}
 
-	private function set_cookie() {
-		setcookie( $this->cookie_name, $this->message, time() + ( 86400 * 7 ) );
+	private function set_option( $message, $type, $current_time ) {
+		update_option( "dx_deploy_cookie_time", array(
+			"message" => $message,
+			"type" => $type,
+			"current_time" => $current_time )
+		);
 	}
 
 	/**
@@ -60,21 +84,23 @@ class DX_Deploy_Notifications {
 	 * @since  v1.0.0
 	 */
 	public function display_message() {
+		$display_flag = '';
 
-		$message_type = $this->message_type;
-		$message = $this->message;
-
-		if ( isset( $_COOKIE[$this->cookie_name] ) ) {
-			$cookie = $_COOKIE[$this->cookie_name];
-		} else {
-			$cookie = false;
+		if ( isset( $_COOKIE["dx_deploy_cookie"] ) && $_COOKIE["dx_deploy_cookie"] == 1 ) {
+			$display_flag = 'is-visible';
 		}
 
-		var_dump($_COOKIE);
+		// Stored data from deploy command in wp_cli
+		$message_data 		= get_option( 'dx_deploy_cookie_time' );
+		$message_content 	= $message_data["message"];
+		$message_type 		= $message_data["type"];
+		$message_time 		= date( 'd M Y - [G:i:s] P e', $message_data["current_time"] );
 
-		$output  = "<div class='dxdeploy-deploy-notification is-hidden {$message_type}'>";
+		$output  = "<div class='dxdeploy-deploy-notification {$display_flag} {$message_type}'>";
 		$output .= "<h2 class='dxdeploy-title'>Note!</h2>";
-		$output .= "<p class='dxdeploy-message'>{$message}</p>";
+		$output .= "<p class='dxdeploy-message'>{$message_content}</p>";
+		$output .= "<span class='timestamp'>{$message_time}</span>";
+		$output .= "<span class='button-ok'>Mark as seen.</span>";
 		$output .= "</div>";
 
 		echo $output;
@@ -110,41 +136,15 @@ if( defined( 'WP_CLI' ) && WP_CLI ) {
 			// Grab the message string
 			list( $message ) = $args;
 
+			$current_time = time();
+
 			// Send the data to the notifications class. It will deal with presenting
 			// it to the user.
 			$DX_Deploy_Notifications = new DX_Deploy_Notifications();
-			$DX_Deploy_Notifications->deployed( $message );
+			$DX_Deploy_Notifications->deployed( $message, "deploy", $current_time );
 
 			// Print the success message.
 			WP_CLI::success( "Visitors will be notified for a new deployment. <$message>" );
-		}
-
-		/**
-		 * Display permanent message.
-		 *
-		 * ## OPTIONS
-		 *
-		 * <message>
-		 * : Informative message to be displayed.
-		 *
-		 * ## EXAMPLES
-		 *
-		 * wp deployme info "New mobile menu functionality"
-		 *
-		 * @synopsis <message>
-		 */
-		function info( $args, $assoc_args ) {
-
-			// Grab the message string
-			list( $message ) = $args;
-
-			// Send the data to the notifications class. It will deal with presenting
-			// it to the user.
-			$DX_Deploy_Notifications = new DX_Deploy_Notifications();
-			$DX_Deploy_Notifications->deployed( $message );
-
-			// Print the success message.
-			WP_CLI::success( "Visitors will be notified with your message. <$message>" );
 		}
 	}
 

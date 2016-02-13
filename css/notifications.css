@@ -1,0 +1,36 @@
+.dxdeploy-deploy-notification {
+	display: none;
+	position: fixed;
+	bottom: 40px;
+	right: 40px;
+	background: white;
+	padding: 10px;
+	z-index: 99999;
+	border: 1px solid #ccc;
+	font-size: 12px;
+	font-family: Helvetica, Arial;
+}
+
+.dxdeploy-deploy-notification.is-visible {
+	display: block;
+}
+
+.dxdeploy-deploy-notification .timestamp {
+	font-style: italic;
+	display: block;
+	color: #999;
+}
+
+.dxdeploy-deploy-notification .button-ok {
+	display: inline-block;
+	margin-top: 5px;
+	cursor: pointer;
+	background: #FF5722;
+	color: white;
+	font-weight: bold;
+	padding: 5px 10px;
+}
+
+.dxdeploy-message {
+	margin: 0;
+}
