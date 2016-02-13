@@ -12,6 +12,7 @@ class DX_Deploy_Notifications {
 	private $message = "";
 	private $message_type = "info";
 	private $cookie_name = "dx_deploy_notification";
+	private $display_notification = false;
 
 	/**
 	 * Load the needed for showing the messages to the frontend.
@@ -26,6 +27,8 @@ class DX_Deploy_Notifications {
 
 		// Show the notification window in the footer.
 		add_action( 'wp_footer', array( $this, "display_message" ) );
+
+		add_action( 'init', array( $this, "check_cookies" ) );
 
 		$this->check_timings();
 
@@ -57,6 +60,12 @@ class DX_Deploy_Notifications {
 		}
 	}
 
+	public function check_cookies() {
+		if ( isset( $_COOKIE["dx_deploy_cookie"] ) && $_COOKIE["dx_deploy_cookie"] == 1 ) {
+			$this->display_notification = true;
+		}
+	}
+
 	/**
 	 * Register scritps and styles.
 	 *
@@ -84,10 +93,10 @@ class DX_Deploy_Notifications {
 	 * @since  v1.0.0
 	 */
 	public function display_message() {
-		$display_flag = '';
+		$display_class = '';
 
-		if ( isset( $_COOKIE["dx_deploy_cookie"] ) && $_COOKIE["dx_deploy_cookie"] == 1 ) {
-			$display_flag = 'is-visible';
+		if ( $this->display_notification ) {
+			$display_class = 'is-visible';
 		}
 
 		// Stored data from deploy command in wp_cli
@@ -96,7 +105,7 @@ class DX_Deploy_Notifications {
 		$message_type 		= $message_data["type"];
 		$message_time 		= date( 'd M Y - [G:i:s] P e', $message_data["current_time"] );
 
-		$output  = "<div class='dxdeploy-deploy-notification {$display_flag} {$message_type}'>";
+		$output  = "<div class='dxdeploy-deploy-notification {$display_class} {$message_type}'>";
 		$output .= "<h2 class='dxdeploy-title'>Note!</h2>";
 		$output .= "<p class='dxdeploy-message'>{$message_content}</p>";
 		$output .= "<span class='timestamp'>{$message_time}</span>";

@@ -1,36 +1,93 @@
 .dxdeploy-deploy-notification {
-	display: none;
-	position: fixed;
-	bottom: 40px;
-	right: 40px;
-	background: white;
-	padding: 10px;
-	z-index: 99999;
-	border: 1px solid #ccc;
-	font-size: 12px;
-	font-family: Helvetica, Arial;
-}
+  display: none;
+  position: fixed;
+  z-index: 99999;
+  width: 280px;
+  right: 20px;
+  bottom: 20px;
+  box-sizing: content-box;
+  overflow: hidden;
+  padding: 20px;
+  background-color: #CA2C3F;
+  color: white;
+  font-family: Helvetica, Arial, sans-serif;
+  border-radius: 5px; }
+  .dxdeploy-deploy-notification.is-visible {
+    display: block;
+    animation-duration: 1s;
+    animation-fill-mode: both;
+    animation-name: popup-animation;
+    -webkit-animation-name: popup-animation; }
+  .dxdeploy-deploy-notification .dxdeploy-title {
+    display: block;
+    margin-top: -20px;
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    background-color: #A21738; }
+  .dxdeploy-deploy-notification .dxdeploy-message {
+    margin: 0; }
+  .dxdeploy-deploy-notification .timestamp {
+    font-size: 13px;
+    display: block;
+    margin: 0; }
+  .dxdeploy-deploy-notification .button-ok {
+    display: inline-block;
+    background-color: #FBB040;
+    color: #ffffff;
+    padding: 10px 20px;
+    margin-top: 20px;
+    border-radius: 2px;
+    cursor: pointer; }
 
-.dxdeploy-deploy-notification.is-visible {
-	display: block;
-}
+@keyframes popup-animation {
+  from {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+    opacity: 0; }
+  30% {
+    -webkit-transform: scale3d(1.25, 0.75, 1);
+    transform: scale3d(1.25, 0.75, 1); }
+  40% {
+    -webkit-transform: scale3d(0.75, 1.25, 1);
+    transform: scale3d(0.75, 1.25, 1); }
+  50% {
+    -webkit-transform: scale3d(1.15, 0.85, 1);
+    transform: scale3d(1.15, 0.85, 1); }
+  65% {
+    -webkit-transform: scale3d(0.95, 1.05, 1);
+    transform: scale3d(0.95, 1.05, 1); }
+  75% {
+    -webkit-transform: scale3d(1.05, 0.95, 1);
+    transform: scale3d(1.05, 0.95, 1); }
+  to {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+    opacity: 1; } }
+@-webkit-keyframes popup-animation {
+  from {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+    opacity: 0; }
+  30% {
+    -webkit-transform: scale3d(1.25, 0.75, 1);
+    transform: scale3d(1.25, 0.75, 1); }
+  40% {
+    -webkit-transform: scale3d(0.75, 1.25, 1);
+    transform: scale3d(0.75, 1.25, 1); }
+  50% {
+    -webkit-transform: scale3d(1.15, 0.85, 1);
+    transform: scale3d(1.15, 0.85, 1); }
+  65% {
+    -webkit-transform: scale3d(0.95, 1.05, 1);
+    transform: scale3d(0.95, 1.05, 1); }
+  75% {
+    -webkit-transform: scale3d(1.05, 0.95, 1);
+    transform: scale3d(1.05, 0.95, 1); }
+  to {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+    opacity: 1; } }
 
-.dxdeploy-deploy-notification .timestamp {
-	font-style: italic;
-	display: block;
-	color: #999;
-}
-
-.dxdeploy-deploy-notification .button-ok {
-	display: inline-block;
-	margin-top: 5px;
-	cursor: pointer;
-	background: #FF5722;
-	color: white;
-	font-weight: bold;
-	padding: 5px 10px;
-}
-
-.dxdeploy-message {
-	margin: 0;
-}
+/*# sourceMappingURL=notifications.css.map */

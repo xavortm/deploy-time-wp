@@ -1,0 +1,149 @@
+// Settings:
+$color-background-popup: #CA2C3F;
+$color-background-title: #A21738;
+$color-content: white;
+$color-button-background: #FBB040;
+$color-button-color: #ffffff;
+$popup-padding: 20px;
+$popup-font: Helvetica, Arial, sans-serif;
+
+.dxdeploy-deploy-notification {
+
+	// Hide by default
+	display: none;
+
+	// Positioning
+	position: fixed;
+	z-index: 99999;
+	width: 280px;
+	right: 20px;
+	bottom: 20px;
+    box-sizing: content-box;
+    overflow: hidden;
+
+	// General styling
+	padding: $popup-padding;
+	background-color: $color-background-popup;
+	color: $color-content;
+	font-family: $popup-font;
+	border-radius: 5px;
+
+	// Show when the wp command is executed.
+	&.is-visible {
+		display: block;
+		animation-duration: 1s;
+		animation-fill-mode: both;
+		animation-name: popup-animation;
+		-webkit-animation-name: popup-animation
+	}
+
+	.dxdeploy-title {
+		display: block;
+		margin-top: -$popup-padding;
+		margin-left: -$popup-padding;
+		margin-right: -$popup-padding;
+		margin-bottom: 10px;
+		padding: $popup-padding / 2 $popup-padding;
+		background-color: $color-background-title;
+	}
+
+	.dxdeploy-message {
+		margin: 0;
+	}
+
+	.timestamp {
+		font-size: 13px;
+		display: block;
+		margin: 0;
+	}
+
+	.button-ok {
+		display: inline-block;
+		background-color: $color-button-background;
+		color: $color-button-color;
+		padding: 10px 20px;
+		margin-top: 20px;
+		border-radius: 2px;
+		cursor: pointer;
+	}
+
+}
+
+// Animation
+@keyframes popup-animation{
+	from {
+		-webkit-transform: scale3d(1, 1, 1);
+		transform: scale3d(1, 1, 1);
+		opacity: 0;
+	}
+
+	30% {
+		-webkit-transform: scale3d(1.25, 0.75, 1);
+		transform: scale3d(1.25, 0.75, 1);
+	}
+
+	40% {
+		-webkit-transform: scale3d(0.75, 1.25, 1);
+		transform: scale3d(0.75, 1.25, 1);
+	}
+
+	50% {
+		-webkit-transform: scale3d(1.15, 0.85, 1);
+		transform: scale3d(1.15, 0.85, 1);
+	}
+
+	65% {
+		-webkit-transform: scale3d(.95, 1.05, 1);
+		transform: scale3d(.95, 1.05, 1);
+	}
+
+	75% {
+		-webkit-transform: scale3d(1.05, .95, 1);
+		transform: scale3d(1.05, .95, 1);
+	}
+
+	to {
+		-webkit-transform: scale3d(1, 1, 1);
+		transform: scale3d(1, 1, 1);
+		opacity: 1;
+	}
+}
+
+@-webkit-keyframes popup-animation {
+	from {
+		-webkit-transform: scale3d(1, 1, 1);
+		transform: scale3d(1, 1, 1);
+		opacity: 0;
+	}
+
+	30% {
+		-webkit-transform: scale3d(1.25, 0.75, 1);
+		transform: scale3d(1.25, 0.75, 1);
+	}
+
+	40% {
+		-webkit-transform: scale3d(0.75, 1.25, 1);
+		transform: scale3d(0.75, 1.25, 1);
+	}
+
+	50% {
+		-webkit-transform: scale3d(1.15, 0.85, 1);
+		transform: scale3d(1.15, 0.85, 1);
+	}
+
+	65% {
+		-webkit-transform: scale3d(.95, 1.05, 1);
+		transform: scale3d(.95, 1.05, 1);
+	}
+
+	75% {
+		-webkit-transform: scale3d(1.05, .95, 1);
+		transform: scale3d(1.05, .95, 1);
+	}
+
+	to {
+		-webkit-transform: scale3d(1, 1, 1);
+		transform: scale3d(1, 1, 1);
+		opacity: 1;
+	}
+}
