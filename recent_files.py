@@ -11,10 +11,10 @@ edited_themes_date 	= time.ctime(os.path.getmtime(edited_themes));
 current_time 		= datetime.datetime.now();
 
 # What is being printed in the file.
-output_string 		= "Deployed at: %s - %s\n" % (edited_themes_date, edited_themes)
+output_string 		= "<?php $output_string = 'Deployed at: %s - %s'; ?>" % (edited_themes_date, edited_themes)
 
 # Output a file with the date of change
-with open("edited_files.txt", "a") as file_edited:
+with open("edited_files.php", "w") as file_edited:
     file_edited.write(output_string)
 
 # Write if there has been an update.
