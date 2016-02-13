@@ -1,6 +1,6 @@
 <?php
 /*
- * Plugin Name: Deploy Notification
+ * Plugin Name: DX Deploy Notification
  * Description: Display when was the last update on the server file. The plugin is controlled via WP_CLI.
  * Version: 1.0.0
  * Author: DevriX
