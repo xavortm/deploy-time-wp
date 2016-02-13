@@ -1,8 +1,9 @@
 jQuery( document ).ready( function ( $ ) {
 	'use strict';
 
-	// Read/Write cookies.
-	var cookieDeployed = $.cookie( "dx_deploy_cookie" );
+	if($.cookie( "dx_deploy_cookie" ) == 1) {
+		$('.dxdeploy-deploy-notification').addClass("is-visible")
+	}
 
 	$(".dxdeploy-deploy-notification .button-ok").on("click", function() {
 		$.cookie("dx_deploy_cookie", 0);
