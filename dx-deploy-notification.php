@@ -20,55 +20,78 @@ class DX_Deploy_Notifications {
 	 * @since  v1.0.0
 	 */
 	public function __construct() {
-		$current_time = time();
 
 		// Load the base scripts needed for notifying the users.
 		add_action( 'wp_footer', array( $this, 'register_scripts' ) );
 
+		add_action( 'init', array( $this, "set_cookies" ) );
+
 		// Show the notification window in the footer.
 		add_action( 'wp_footer', array( $this, "display_message" ) );
 
-		add_action( 'init', array( $this, "check_cookies" ) );
-
-		$this->check_timings();
-
 		// Store the display marker.
 		add_option( "dx_deploy_cookie_time" );
-		add_option( "dx_deploy_cookie_time_compare", $current_time );
 
 	}
 
-	public function deployed( $message = '', $type = 'info', $current_time ) {
+	public function deployed( $message = '', $current_time ) {
 
 		// Use the new message
 		$this->message = sanitize_text_field( $message );
-		$this->type = sanitize_text_field( $type );
 
 		//  Add the action of creating new cookie
-		$this->set_option( $message, $type, $current_time );
+		$this->set_option( $message, $current_time );
 
 	}
 
-	public function check_timings() {
-		$comparison = get_option( "dx_deploy_cookie_time_compare" );
-		$cookie_content = get_option( "dx_deploy_cookie_time" );
+	/**
+	 * The problem:
+	 *
+	 * I can't set a flag or cookie on wp msg command. I am setting
+	 * option to true, but i am never resetting this option, so it
+	 * seems useless.
+	 *
+	 * Then I have the cookies. They have 3 values atm:
+	 *   visible 	Show the cookie.
+	 *   init 		Default value when cookie is not set
+	 *   hide 		After having wp msg content "" command and "hide"
+	 * 				button is pressed.
+	 *
+	 * I don't know how to toggle the cookies when a command is sent
+	 * in a way to make it work for all users. Using options will work
+	 * globally, so its not ideal.
+	 */
+	public function set_cookies() {
 
-		if ( ! $comparison || ! $cookie_content ) {
+		// See of wp cli command has been given.
+		$options = get_option( "dx_deploy_cookie_time" );
+
+		// To eliminate PHP errors/warnings.
+		if ( empty( $options["current_time"] ) ) {
 			return;
 		}
 
-		$cookie_time = $cookie_content["current_time"];
-
-		if ( $comparison != $cookie_time ) {
-			setcookie( "dx_deploy_cookie", 1 );
-			update_option( "dx_deploy_cookie_time_compare", $cookie_time );
+		// If no cookies have been set, return.
+		if ( false === $this->check_cookies() ) {
+			return;
 		}
+
+		if ( $options["current_time"] >= $_COOKIE["dx_deploy_cookie"] ) {
+			setcookie( "dx_deploy_cookie", $options["current_time"] );
+			$this->display_notification = true;
+		} else 	{
+			$this->display_notification = false;
+		}
+
 	}
 
-	public function check_cookies() {
-		if ( isset( $_COOKIE["dx_deploy_cookie"] ) && $_COOKIE["dx_deploy_cookie"] == 1 ) {
-			$this->display_notification = true;
+	private function check_cookies() {
+		if ( ! isset( $_COOKIE["dx_deploy_cookie"] ) ) {
+			setcookie( "dx_deploy_cookie", "" );
+			return false;
 		}
+
+		return true;
 	}
 
 	/**
@@ -83,20 +106,19 @@ class DX_Deploy_Notifications {
 		wp_enqueue_style 	( 'deploy-time-styling', plugins_url( 'css/notifications.css', __FILE__ ) );
 	}
 
-	private function set_option( $message, $type, $current_time ) {
+	private function set_option( $message, $current_time ) {
 		update_option( "dx_deploy_cookie_time", array(
 			"message" => $message,
-			"type" => $type,
-			"current_time" => $current_time )
-		);
+			"current_time" => $current_time
+		) );
 	}
 
 	public function clear() {
-		update_option( "dx_deploy_cookie_time_compare", 0 );
-		update_option( "dx_deploy_cookie_time", 0 );
-		setcookie( "dx_deploy_cookie", 0 );
-		echo "asd";
-		$this->display_notification = false;
+		update_option( "dx_deploy_cookie_time", array(
+			"time" => 0
+		) );
+
+		unset($_COOKIE["dx_deploy_cookie"]);
 	}
 
 	/**
@@ -108,10 +130,10 @@ class DX_Deploy_Notifications {
 	public function display_message() {
 
 		// Stored data from deploy command in wp_cli
-		$message_data 		= get_option( 'dx_deploy_cookie_time' );
+		$message_data 	= get_option( 'dx_deploy_cookie_time' );
 		$display_class = '';
 
-		if ( $this->display_notification ) {
+		if ( true === $this->display_notification ) {
 			$display_class = 'is-visible';
 		}
 
@@ -120,10 +142,9 @@ class DX_Deploy_Notifications {
 		}
 
 		$message_content 	= $message_data["message"];
-		$message_type 		= $message_data["type"];
 		$message_time 		= date( 'd M Y - [G:i:s] P e', $message_data["current_time"] );
 
-		$output  = "<div class='dxdeploy-deploy-notification {$display_class} {$message_type}'>";
+		$output  = "<div class='dxdeploy-deploy-notification {$display_class}'>";
 		$output .= "<h2 class='dxdeploy-title'>Note!</h2>";
 		$output .= "<p class='dxdeploy-message'>{$message_content}</p>";
 		$output .= "<span class='timestamp'>{$message_time}</span>";
@@ -162,13 +183,12 @@ if( defined( 'WP_CLI' ) && WP_CLI ) {
 
 			// Grab the message string
 			list( $message ) = $args;
-
 			$current_time = time();
 
 			// Send the data to the notifications class. It will deal with presenting
 			// it to the user.
 			$DX_Deploy_Notifications = new DX_Deploy_Notifications();
-			$DX_Deploy_Notifications->deployed( $message, "deploy", $current_time );
+			$DX_Deploy_Notifications->deployed( $message, $current_time );
 
 			// Print the success message.
 			WP_CLI::success( "Visitors will be notified for a new deployment. <$message>" );
