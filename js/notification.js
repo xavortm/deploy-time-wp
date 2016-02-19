@@ -10,6 +10,8 @@ jQuery( document ).ready( function ( $ ) {
 	$(".dxdeploy-deploy-notification .button-ok").on("click", function() {
 		$.cookie("dx_deploy_cookie", time);
 		$('.dxdeploy-deploy-notification').removeClass("is-visible");
+		console.log($.cookie("dx_deploy_cookie"));
 	});
 
+	console.log($.cookie("dx_deploy_cookie"));
 });

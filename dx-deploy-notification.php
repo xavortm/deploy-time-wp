@@ -68,15 +68,19 @@ class DX_Deploy_Notifications {
 
 		// To eliminate PHP errors/warnings.
 		if ( empty( $options["current_time"] ) ) {
+			var_dump( "in first if" );
 			return;
 		}
 
 		// If no cookies have been set, return.
 		if ( false === $this->check_cookies() ) {
+			var_dump("in second if");
 			return;
 		}
 
-		if ( $options["current_time"] >= $_COOKIE["dx_deploy_cookie"] ) {
+		$cookie_val = intval( $_COOKIE["dx_deploy_cookie"] );
+
+		if ( $options["current_time"] >= $cookie_val ) {
 			setcookie( "dx_deploy_cookie", $options["current_time"] );
 			$this->display_notification = true;
 		} else 	{
